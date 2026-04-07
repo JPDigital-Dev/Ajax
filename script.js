@@ -1,4 +1,4 @@
-const metrics = document.querySelectorAll(".metric");
+const metrics = document.querySelectorAll(".metric, .metric-inline");
 const header = document.querySelector(".site-header");
 const navLinks = document.querySelectorAll(".nav-link");
 const anchorLinks = document.querySelectorAll('a[href^="#"]');
