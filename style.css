@@ -21,7 +21,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -155,6 +155,10 @@ select {
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   align-items: center;
   gap: 48px;
+}
+
+main section[id] {
+  scroll-margin-top: 120px;
 }
 
 .hero-backdrop {
@@ -309,6 +313,7 @@ h1 {
   border-radius: 50%;
   display: grid;
   place-items: center;
+  transition: transform 200ms ease-out;
 }
 
 .command-center::before {
@@ -362,6 +367,7 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow-xl);
+  animation: drift 8s ease-in-out infinite;
 }
 
 .orbit-card strong {
@@ -396,24 +402,28 @@ h1 {
   top: 1%;
   left: 50%;
   transform: translateX(-50%);
+  animation-delay: 0s;
 }
 
 .orbit-card-right {
   top: 50%;
   right: -4%;
   transform: translateY(-50%);
+  animation-delay: 1.2s;
 }
 
 .orbit-card-bottom {
   bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
+  animation-delay: 2.4s;
 }
 
 .orbit-card-left {
   top: 50%;
   left: -4%;
   transform: translateY(-50%);
+  animation-delay: 3.6s;
 }
 
 .content-section {
@@ -582,26 +592,23 @@ h2 {
   color: var(--text-main);
 }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(38px) scale(0.98);
-  transition:
-    opacity 800ms ease,
-    transform 800ms cubic-bezier(0.2, 1, 0.2, 1);
+[data-aos="fade-up"],
+[data-aos="fade-down"],
+[data-aos="fade-left"],
+[data-aos="fade-right"],
+[data-aos="zoom-in"] {
   will-change: transform, opacity;
 }
 
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
+@keyframes drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
 
-.hero-copy.reveal.is-visible {
-  transition-delay: 60ms;
-}
-
-.hero-visual.reveal.is-visible {
-  transition-delay: 140ms;
+  50% {
+    translate: 0 -10px;
+  }
 }
 
 @media (max-width: 1120px) {
@@ -685,6 +692,7 @@ h2 {
     width: auto;
     inset: auto;
     transform: none;
+    animation: none;
   }
 
   .hero-visual {
@@ -737,8 +745,7 @@ h2 {
     transition-duration: 0ms !important;
   }
 
-  .reveal {
-    opacity: 1;
-    transform: none;
+  .orbit-card {
+    animation: none;
   }
 }

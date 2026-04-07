@@ -1,7 +1,9 @@
-const revealElements = document.querySelectorAll(".reveal");
 const metrics = document.querySelectorAll(".metric");
 const heroVisual = document.querySelector(".command-center");
+const header = document.querySelector(".site-header");
+const anchorLinks = document.querySelectorAll('a[href^="#"]');
 let metricsAnimated = false;
+let scrollAnimationFrame = null;
 
 const formatMetric = (value, target, suffix) => {
   const decimals = target.toString().includes(".") ? target.toString().split(".")[1].length : 0;
@@ -35,29 +37,83 @@ const animateMetrics = () => {
   });
 };
 
-const revealObserver = new IntersectionObserver(
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (window.AOS) {
+  window.AOS.init({
+    once: true,
+    duration: 900,
+    offset: 80,
+    easing: "ease-out-cubic",
+    mirror: false,
+    disable: prefersReducedMotion,
+  });
+}
+
+const heroObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-
-      entry.target.classList.add("is-visible");
-
-      if (entry.target.classList.contains("hero-copy")) {
+      if (entry.isIntersecting) {
         animateMetrics();
+        heroObserver.unobserve(entry.target);
       }
-
-      revealObserver.unobserve(entry.target);
     });
   },
   {
-    threshold: 0.16,
-    rootMargin: "0px 0px -8% 0px",
+    threshold: 0.35,
   }
 );
 
-revealElements.forEach((element) => revealObserver.observe(element));
+const heroCopy = document.querySelector(".hero-copy");
 
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (heroCopy) {
+  heroObserver.observe(heroCopy);
+}
+
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+const smoothScrollTo = (targetY) => {
+  if (scrollAnimationFrame) {
+    cancelAnimationFrame(scrollAnimationFrame);
+  }
+
+  const startY = window.scrollY;
+  const distance = targetY - startY;
+  const duration = Math.min(1400, Math.max(700, Math.abs(distance) * 0.6));
+  const startTime = performance.now();
+
+  const step = (now) => {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = easeInOutCubic(progress);
+    window.scrollTo(0, startY + distance * eased);
+
+    if (progress < 1) {
+      scrollAnimationFrame = requestAnimationFrame(step);
+      return;
+    }
+
+    scrollAnimationFrame = null;
+  };
+
+  scrollAnimationFrame = requestAnimationFrame(step);
+};
+
+anchorLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const href = link.getAttribute("href");
+    if (!href || href === "#") return;
+
+    const target = document.querySelector(href);
+    if (!target) return;
+
+    event.preventDefault();
+
+    const headerOffset = header ? header.offsetHeight + 28 : 0;
+    const targetY = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset);
+    smoothScrollTo(targetY);
+    window.history.pushState(null, "", href);
+  });
+});
 
 if (!prefersReducedMotion && heroVisual) {
   const updateParallax = () => {
@@ -67,4 +123,8 @@ if (!prefersReducedMotion && heroVisual) {
 
   updateParallax();
   window.addEventListener("scroll", updateParallax, { passive: true });
+}
+
+if (prefersReducedMotion) {
+  animateMetrics();
 }
