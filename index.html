@@ -79,6 +79,29 @@
             <div class="showcase-screen">
               <div class="signal-ring ring-1"></div>
               <div class="signal-ring ring-2"></div>
+              <svg class="system-diagram" viewBox="0 0 800 520" aria-hidden="true">
+                <path class="diagram-link" d="M400 260 C400 220, 400 184, 400 146"></path>
+                <path class="diagram-link" d="M400 260 C478 260, 528 260, 590 260"></path>
+                <path class="diagram-link" d="M400 260 C322 260, 272 260, 210 260"></path>
+                <path class="diagram-link diagram-link-soft" d="M400 260 C400 304, 400 344, 400 394"></path>
+
+                <circle class="signal-pulse signal-pulse-blue" r="4.5">
+                  <animateMotion dur="3.6s" repeatCount="indefinite" path="M400 260 C400 220, 400 184, 400 146"></animateMotion>
+                  <animate attributeName="opacity" values="0;1;1;0" dur="3.6s" repeatCount="indefinite"></animate>
+                </circle>
+                <circle class="signal-pulse signal-pulse-blue" r="4.5">
+                  <animateMotion dur="3.8s" begin="0.8s" repeatCount="indefinite" path="M400 260 C478 260, 528 260, 590 260"></animateMotion>
+                  <animate attributeName="opacity" values="0;1;1;0" dur="3.8s" begin="0.8s" repeatCount="indefinite"></animate>
+                </circle>
+                <circle class="signal-pulse signal-pulse-blue" r="4.5">
+                  <animateMotion dur="3.8s" begin="1.4s" repeatCount="indefinite" path="M400 260 C322 260, 272 260, 210 260"></animateMotion>
+                  <animate attributeName="opacity" values="0;1;1;0" dur="3.8s" begin="1.4s" repeatCount="indefinite"></animate>
+                </circle>
+                <circle class="signal-pulse signal-pulse-warm" r="4">
+                  <animateMotion dur="4.2s" begin="2s" repeatCount="indefinite" path="M400 260 C400 304, 400 344, 400 394"></animateMotion>
+                  <animate attributeName="opacity" values="0;1;1;0" dur="4.2s" begin="2s" repeatCount="indefinite"></animate>
+                </circle>
+              </svg>
               <div class="signal-core">
                 <span class="core-label">Ajax Hub</span>
                 <strong>System Armed</strong>

@@ -414,6 +414,7 @@ h3 {
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 82px 82px;
   mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+  z-index: 0;
 }
 
 .signal-ring,
@@ -424,6 +425,46 @@ h3 {
 
 .signal-ring {
   border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1;
+}
+
+.system-diagram {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: visible;
+}
+
+.diagram-link {
+  fill: none;
+  stroke: rgba(135, 230, 255, 0.34);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 10 12;
+  animation: linkFlow 12s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(76, 188, 255, 0.18));
+}
+
+.diagram-link-soft {
+  stroke: rgba(243, 179, 122, 0.26);
+  filter: drop-shadow(0 0 12px rgba(243, 179, 122, 0.12));
+}
+
+.signal-pulse {
+  opacity: 0;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.signal-pulse-blue {
+  fill: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.signal-pulse-warm {
+  fill: var(--accent-orange);
+  color: var(--accent-orange);
 }
 
 .ring-1 {
@@ -448,6 +489,7 @@ h3 {
   box-shadow:
     inset 0 0 26px rgba(255, 255, 255, 0.06),
     0 0 60px rgba(76, 188, 255, 0.16);
+  z-index: 2;
 }
 
 .core-label,
@@ -479,6 +521,7 @@ h3 {
   backdrop-filter: blur(16px);
   box-shadow: var(--shadow-glow);
   animation: chipFloat 10s ease-in-out infinite;
+  z-index: 2;
 }
 
 .chip-top {
@@ -994,6 +1037,16 @@ h3 {
   }
 }
 
+@keyframes linkFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -88;
+  }
+}
+
 @keyframes bounce {
   0%,
   100% {
@@ -1113,6 +1166,10 @@ h3 {
     display: none;
   }
 
+  .system-diagram {
+    display: none;
+  }
+
   .signal-core {
     position: relative;
     width: 100%;
@@ -1176,5 +1233,13 @@ h3 {
   .flow-connector {
     opacity: 1;
     transform: none;
+  }
+
+  .diagram-link {
+    animation: none;
+  }
+
+  .signal-pulse {
+    display: none;
   }
 }
