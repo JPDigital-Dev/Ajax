@@ -1,9 +1,18 @@
 const metrics = document.querySelectorAll(".metric");
-const heroVisual = document.querySelector(".command-center");
 const header = document.querySelector(".site-header");
+const navLinks = document.querySelectorAll(".nav-link");
 const anchorLinks = document.querySelectorAll('a[href^="#"]');
+const sections = document.querySelectorAll("[data-section]");
+const hero = document.querySelector(".hero");
+const heroCopy = document.querySelector(".hero-copy");
+const heroPanel = document.querySelector(".showcase-panel");
+const processFlow = document.querySelector("#process-flow");
+const flowItems = processFlow ? [...processFlow.children] : [];
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 let metricsAnimated = false;
 let scrollAnimationFrame = null;
+let processAnimated = false;
 
 const formatMetric = (value, target, suffix) => {
   const decimals = target.toString().includes(".") ? target.toString().split(".")[1].length : 0;
@@ -23,8 +32,7 @@ const animateMetrics = () => {
     const tick = (now) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      const current = target * eased;
-      metric.textContent = formatMetric(current, target, suffix);
+      metric.textContent = formatMetric(target * eased, target, suffix);
 
       if (progress < 1) {
         requestAnimationFrame(tick);
@@ -37,15 +45,12 @@ const animateMetrics = () => {
   });
 };
 
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 if (window.AOS) {
   window.AOS.init({
     once: true,
     duration: 900,
-    offset: 80,
+    offset: 90,
     easing: "ease-out-cubic",
-    mirror: false,
     disable: prefersReducedMotion,
   });
 }
@@ -53,21 +58,61 @@ if (window.AOS) {
 const heroObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        animateMetrics();
-        heroObserver.unobserve(entry.target);
-      }
+      if (!entry.isIntersecting) return;
+      animateMetrics();
+      heroObserver.unobserve(entry.target);
     });
   },
-  {
-    threshold: 0.35,
-  }
+  { threshold: 0.35 }
 );
-
-const heroCopy = document.querySelector(".hero-copy");
 
 if (heroCopy) {
   heroObserver.observe(heroCopy);
+}
+
+const setActiveLink = (id) => {
+  navLinks.forEach((link) => {
+    const isActive = link.getAttribute("href") === `#${id}`;
+    link.classList.toggle("is-active", isActive);
+  });
+};
+
+const sectionObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      setActiveLink(entry.target.id);
+    });
+  },
+  {
+    threshold: 0.42,
+    rootMargin: "-18% 0px -34% 0px",
+  }
+);
+
+sections.forEach((section) => sectionObserver.observe(section));
+
+const processObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting || processAnimated) return;
+
+      processAnimated = true;
+
+      flowItems.forEach((item, index) => {
+        window.setTimeout(() => {
+          item.classList.add("is-visible");
+        }, index * 180);
+      });
+
+      processObserver.unobserve(entry.target);
+    });
+  },
+  { threshold: 0.35 }
+);
+
+if (processFlow) {
+  processObserver.observe(processFlow);
 }
 
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -79,7 +124,7 @@ const smoothScrollTo = (targetY) => {
 
   const startY = window.scrollY;
   const distance = targetY - startY;
-  const duration = Math.min(1400, Math.max(700, Math.abs(distance) * 0.6));
+  const duration = Math.min(1400, Math.max(700, Math.abs(distance) * 0.65));
   const startTime = performance.now();
 
   const step = (now) => {
@@ -108,23 +153,37 @@ anchorLinks.forEach((link) => {
 
     event.preventDefault();
 
-    const headerOffset = header ? header.offsetHeight + 28 : 0;
+    const headerOffset = header ? header.offsetHeight + 26 : 0;
     const targetY = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset);
     smoothScrollTo(targetY);
     window.history.pushState(null, "", href);
   });
 });
 
-if (!prefersReducedMotion && heroVisual) {
-  const updateParallax = () => {
-    const offset = Math.min(window.scrollY * 0.08, 32);
-    heroVisual.style.transform = `translateY(${offset}px)`;
-  };
+const updateHeaderState = () => {
+  if (!header) return;
+  header.classList.toggle("is-scrolled", window.scrollY > 24);
+};
 
-  updateParallax();
-  window.addEventListener("scroll", updateParallax, { passive: true });
-}
+const updateHeroParallax = () => {
+  if (prefersReducedMotion || !hero || !heroPanel) return;
+
+  const rect = hero.getBoundingClientRect();
+  const progress = Math.max(-1, Math.min(1, rect.top / window.innerHeight));
+  heroPanel.style.transform = `translateY(${progress * 24}px)`;
+};
+
+const handleScroll = () => {
+  updateHeaderState();
+  updateHeroParallax();
+};
+
+window.addEventListener("scroll", handleScroll, { passive: true });
+window.addEventListener("resize", updateHeroParallax);
 
 if (prefersReducedMotion) {
   animateMetrics();
+  flowItems.forEach((item) => item.classList.add("is-visible"));
 }
+
+handleScroll();
